@@ -1,0 +1,514 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logical Expression & Truth Table Generator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e3f2fd, #ffffff);
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            color: #123c78;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+        }
+
+        .input-section {
+            background: #f5f8fc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            font-size: 18px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #123c78;
+        }
+
+        .buttons {
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            background: #123c78;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #0b2b5a;
+        }
+
+        .generate {
+            background: #198754;
+            padding: 12px 25px;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+
+        .generate:hover {
+            background: #146c43;
+        }
+
+        .result {
+            margin-top: 25px;
+        }
+
+        .result h2 {
+            color: #123c78;
+            margin-bottom: 15px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        th {
+            background: #123c78;
+            color: white;
+            padding: 12px;
+        }
+
+        td {
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+
+        .properties {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f5f8fc;
+            border-radius: 10px;
+        }
+
+        .property {
+            padding: 10px;
+            margin: 7px 0;
+            border-radius: 6px;
+            background: white;
+            border-left: 5px solid #123c78;
+        }
+
+        .true {
+            color: green;
+            font-weight: bold;
+        }
+
+        .false {
+            color: red;
+            font-weight: bold;
+        }
+
+        .examples {
+            margin-top: 25px;
+            background: #fff8e1;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .examples h3 {
+            color: #8a5a00;
+            margin-bottom: 10px;
+        }
+
+        .examples p {
+            margin: 7px 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #777;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Logical Expression & Truth Table Generator</h1>
+        <p>Generate truth tables and check logical properties</p>
+    </div>
+
+    <div class="input-section">
+
+        <label for="expression">
+            Enter Logical Expression:
+        </label>
+
+        <input
+            type="text"
+            id="expression"
+            placeholder="Example: A AND B">
+
+        <div class="buttons">
+            <button onclick="addText('A')">A</button>
+            <button onclick="addText('B')">B</button>
+            <button onclick="addText('C')">C</button>
+
+            <button onclick="addText(' AND ')">AND</button>
+            <button onclick="addText(' OR ')">OR</button>
+            <button onclick="addText(' NOT ')">NOT</button>
+            <button onclick="addText(' XOR ')">XOR</button>
+            <button onclick="addText(' -> ')">→</button>
+
+            <button onclick="addText('(')">(</button>
+            <button onclick="addText(')')">)</button>
+
+            <button onclick="clearExpression()">Clear</button>
+        </div>
+
+        <button class="generate" onclick="generateTable()">
+            Generate Truth Table
+        </button>
+
+    </div>
+
+    <div id="output"></div>
+
+    <div class="examples">
+        <h3>Examples</h3>
+
+        <p><b>AND:</b> A AND B</p>
+        <p><b>OR:</b> A OR B</p>
+        <p><b>NOT:</b> NOT A</p>
+        <p><b>Implication:</b> A → B</p>
+        <p><b>XOR:</b> A XOR B</p>
+        <p><b>Complex:</b> (A AND B) OR C</p>
+    </div>
+
+    <div class="footer">
+        Logical Expression & Truth Table Generator
+    </div>
+
+</div>
+
+<script>
+
+function addText(text) {
+    document.getElementById("expression").value += text;
+}
+
+function clearExpression() {
+    document.getElementById("expression").value = "";
+    document.getElementById("output").innerHTML = "";
+}
+
+
+/* Convert logical expression into JavaScript expression */
+
+function convertExpression(exp) {
+
+    exp = exp.toUpperCase();
+
+    // Remove extra spaces
+    exp = exp.trim();
+
+    // Replace operators
+    exp = exp.replace(/\bAND\b/g, "&&");
+    exp = exp.replace(/\bOR\b/g, "||");
+    exp = exp.replace(/\bXOR\b/g, "!=");
+
+    // NOT
+    exp = exp.replace(/\bNOT\s+/g, "!");
+
+    // Implication A -> B
+    // P -> Q is equivalent to (!P || Q)
+    exp = convertImplication(exp);
+
+    return exp;
+}
+
+
+/* Convert simple implications */
+
+function convertImplication(exp) {
+
+    let parts = exp.split("->");
+
+    if (parts.length === 1) {
+        return exp;
+    }
+
+    let left = parts[0].trim();
+    let right = parts.slice(1).join("->").trim();
+
+    return "(!(" + left + ") || (" + right + "))";
+}
+
+
+/* Find variables */
+
+function findVariables(exp) {
+
+    let matches = exp.match(/[A-C]/g) || [];
+
+    return [...new Set(matches)];
+}
+
+
+/* Evaluate expression */
+
+function evaluateExpression(exp, values) {
+
+    let jsExp = convertExpression(exp);
+
+    for (let variable in values) {
+
+        let regex = new RegExp("\\b" + variable + "\\b", "g");
+
+        jsExp = jsExp.replace(
+            regex,
+            values[variable] ? "true" : "false"
+        );
+    }
+
+    try {
+        return Boolean(Function("return " + jsExp)());
+    }
+    catch (error) {
+        throw new Error("Invalid logical expression");
+    }
+}
+
+
+/* Generate truth table */
+
+function generateTable() {
+
+    let expression =
+        document.getElementById("expression").value.trim();
+
+    if (expression === "") {
+
+        alert("Please enter a logical expression.");
+
+        return;
+    }
+
+    try {
+
+        let variables = findVariables(expression);
+
+        if (variables.length === 0) {
+
+            alert("Please use variables A, B, or C.");
+
+            return;
+        }
+
+        let rows = Math.pow(2, variables.length);
+
+        let results = [];
+
+        let tableHTML = `
+            <div class="result">
+
+            <h2>Truth Table</h2>
+
+            <div class="table-container">
+
+            <table>
+
+            <tr>
+        `;
+
+        // Header
+        variables.forEach(v => {
+            tableHTML += `<th>${v}</th>`;
+        });
+
+        tableHTML += `<th>${expression}</th></tr>`;
+
+
+        // Rows
+        for (let i = 0; i < rows; i++) {
+
+            let values = {};
+
+            for (let j = 0; j < variables.length; j++) {
+
+                values[variables[j]] =
+                    Boolean((i >> (variables.length - j - 1)) & 1);
+            }
+
+            let result =
+                evaluateExpression(expression, values);
+
+            results.push(result);
+
+            tableHTML += "<tr>";
+
+            variables.forEach(v => {
+
+                tableHTML += `
+                    <td>
+                        ${values[v] ? "T" : "F"}
+                    </td>
+                `;
+
+            });
+
+            tableHTML += `
+                <td class="${result ? "true" : "false"}">
+                    ${result ? "T" : "F"}
+                </td>
+            `;
+
+            tableHTML += "</tr>";
+        }
+
+        tableHTML += `
+            </table>
+            </div>
+            </div>
+        `;
+
+
+        /* Determine properties */
+
+        let allTrue =
+            results.every(value => value === true);
+
+        let allFalse =
+            results.every(value => value === false);
+
+        let tautology =
+            allTrue;
+
+        let contradiction =
+            allFalse;
+
+        let contingency =
+            !allTrue && !allFalse;
+
+
+        let propertiesHTML = `
+
+            <div class="properties">
+
+                <h2>Logical Properties</h2>
+
+                <div class="property">
+                    Tautology:
+                    <span class="${tautology ? "true" : "false"}">
+                        ${tautology ? "YES" : "NO"}
+                    </span>
+                </div>
+
+                <div class="property">
+                    Contradiction:
+                    <span class="${contradiction ? "true" : "false"}">
+                        ${contradiction ? "YES" : "NO"}
+                    </span>
+                </div>
+
+                <div class="property">
+                    Contingency:
+                    <span class="${contingency ? "true" : "false"}">
+                        ${contingency ? "YES" : "NO"}
+                    </span>
+                </div>
+
+                <div class="property">
+                    Satisfiable:
+                    <span class="${!contradiction ? "true" : "false"}">
+                        ${!contradiction ? "YES" : "NO"}
+                    </span>
+                </div>
+
+                <div class="property">
+                    Unsatisfiable:
+                    <span class="${contradiction ? "true" : "false"}">
+                        ${contradiction ? "YES" : "NO"}
+                    </span>
+                </div>
+
+            </div>
+        `;
+
+
+        document.getElementById("output").innerHTML =
+            tableHTML + propertiesHTML;
+
+    }
+
+    catch (error) {
+
+        alert(
+            "Invalid expression. Please check the syntax."
+        );
+
+    }
+}
+
+</script>
+
+</body>
+</html>
+```
